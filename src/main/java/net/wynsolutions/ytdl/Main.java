@@ -3,8 +3,6 @@ package net.wynsolutions.ytdl;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,7 +12,6 @@ import com.github.axet.vget.info.VideoInfo;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,9 +20,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
@@ -68,14 +65,15 @@ public class Main extends Application{
 
 	private Button startButton = new Button("Start"), cancelBtn = new Button("Cancel"), fileBtn = new Button("Folder");
 	private CheckBox plexBox = new CheckBox("Plex Format"), standBox = new CheckBox("Standard Format"), convertBox = new CheckBox("Auto-Convert");
-	private TextField urlField = new TextField(), pathField = new TextField(), episodeNameField, fileNameField, showNameField;
+	private TextField urlField = new TextField(), pathField = new TextField(), episodeNameField, fileNameField, showNameField, movieNameField;
 	private Label percent, speed;
 	private TextFlow videoName;
 	public static ProgressBar pb = new ProgressBar(0.01);
-	private Spinner<Integer> spinner, spinner1;
+	private Spinner<Integer> spinner, spinner1, spinner2;
 	private ImageView imv;
-	
+	private RadioButton plexTv, plexMovie;
 	private TitledBorderPane plexBorder, standBorder;
+	private HBox tvBox = new HBox(2), movieBox = new HBox(2);
 	
 	private final PseudoClass errorClass = PseudoClass.getPseudoClass("error");
 
@@ -151,7 +149,33 @@ public class Main extends Application{
 		//
 		
 		// Plex Naming Titled Box
-		HBox plexHbox = new HBox(2);
+		VBox plexVBox = new VBox(2);
+		HBox buttonsBox = new HBox(2);
+		
+		// Radio Buttons
+		plexTv = new RadioButton("Tv Show");
+		plexMovie = new RadioButton("Movie");
+		
+		buttonsBox.setAlignment(Pos.CENTER);
+		
+		buttonsBox.getChildren().addAll(plexTv, plexMovie);
+		plexVBox.getChildren().add(buttonsBox);
+		
+		//Movie Box
+		movieNameField = new TextField("Movie Name");
+		
+		spinner2 = new Spinner<Integer>();
+		spinner2.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1800, 3000, 2017, 1));
+	    spinner2.setEditable(true);
+	    spinner2.setPrefWidth(80.0);
+	    
+	    Label year = new Label("Year");
+	    
+	    movieBox.getChildren().addAll(movieNameField, year, spinner2);
+	    plexVBox.getChildren().add(movieBox);
+		movieBox.setDisable(true);
+	    
+		//Tv Show Box
 		showNameField = new TextField("Show Name");
 		
 		spinner = new Spinner<Integer>();
@@ -168,8 +192,11 @@ public class Main extends Application{
 	    episodeNameField = new TextField("Episode Name");
 	    episodeNameField.setPrefWidth(100.0);
 	    
-		plexHbox.getChildren().addAll(showNameField, season, spinner, episode, spinner1, episodeNameField);
-		plexBorder = new TitledBorderPane("Plex Naming", plexHbox);
+		plexTv.setSelected(true);
+	    
+		tvBox.getChildren().addAll(showNameField, season, spinner, episode, spinner1, episodeNameField);
+		plexVBox.getChildren().add(tvBox);
+		plexBorder = new TitledBorderPane("Plex Naming", plexVBox);
 		plexBorder.setDisable(true);
 		//
 		
@@ -223,7 +250,7 @@ public class Main extends Application{
 		this.fileBtn.setAlignment(Pos.CENTER);
 		urlField.setPrefWidth(340.0);
 		
-		pb.setPrefWidth(410.0);
+		pb.setPrefWidth(450.0);
 		pane1.setPrefWidth(250.0);
 		videoName.setPrefSize(450.0, 10.0);
 		videoName.setTextAlignment(TextAlignment.CENTER);
@@ -237,6 +264,7 @@ public class Main extends Application{
 		episodeNameField.setPrefWidth(150.0);
 		fileNameField.setPrefWidth(410.0);
 		showNameField.setPrefWidth(115.0);
+		movieNameField.setPrefWidth(270.0);
 		//
 		
 		// Settings fonts
@@ -249,6 +277,7 @@ public class Main extends Application{
 		standBox.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
 		season.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
 		episode.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
+		year.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
 		startButton.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
 		cancelBtn.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
 		this.fileBtn.setFont(Font.font("Tahoma", FontWeight.BOLD, 12));
@@ -283,6 +312,40 @@ public class Main extends Application{
 				
 			}
 
+		});
+		
+		this.plexMovie.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override public void handle(ActionEvent event) {
+				if(plexTv.isSelected()){
+					plexMovie.setSelected(false);
+					return;
+				}
+				
+				if(plexMovie.isSelected()){
+					movieBox.setDisable(false);
+				}else{
+					movieBox.setDisable(true);
+				}
+				
+			}
+		});
+		
+		this.plexTv.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override public void handle(ActionEvent event) {
+				if(plexMovie.isSelected()){
+					plexTv.setSelected(false);
+					return;
+				}
+				
+				if(plexTv.isSelected()){
+					tvBox.setDisable(false);
+				}else{
+					tvBox.setDisable(true);
+				}
+				
+			}
 		});
 		
 		this.plexBox.setOnAction(new EventHandler<ActionEvent>(){
@@ -381,8 +444,17 @@ public class Main extends Application{
 						videoName.getChildren().addAll(dl, title);
 						
 						if(plexBox.isSelected()){
-							v.getVideo().setTitle(showNameField.getText() + " S" + String.format("%02d", spinner.getValue())
-							+ "E" + String.format("%02d", spinner1.getValue()) + " " + episodeNameField.getText().trim());
+							
+							if(plexTv.isSelected()){
+								v.getVideo().setTitle(showNameField.getText() + " S" + String.format("%02d", spinner.getValue())
+								+ "E" + String.format("%02d", spinner1.getValue()) + " " + episodeNameField.getText().trim());
+							}else if(plexMovie.isSelected()){
+								v.getVideo().setTitle(movieNameField.getText().trim() + " (" + spinner2.getValue() + ")");
+							}else{
+								
+							}
+							
+
 						}else{
 							v.getVideo().setTitle(fileNameField.getText().trim());
 						}

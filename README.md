@@ -7,10 +7,9 @@ via a URL and will also convert the file if necessary. Youtube sometimes splits 
 uses FFmpeg to splice them back together.
 
 ### Main Application
-![YT-Downloader Home](http://i.imgur.com/3DRFDM6.png)
+![YT-Downloader Home](http://i.imgur.com/nU73wxA.png)
 
 ## Not Finished Features
-* Only names tv show titles for plex
 * Errors out when canceling downloads or convertions
 * Overall styling
 
